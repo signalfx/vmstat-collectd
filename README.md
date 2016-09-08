@@ -56,10 +56,12 @@ stanza similar to the following:
     <Module collectd_vmstat>
         Path "/usr/bin/vmstat"
         Interval 2
-        Count 2
         Verbose false
         NiceNames true
-        Include [""]
+        # Include Nice Names
+        Include ["process.waiting", "process.uninterruptible_sleep", "memory.swap", "memory.free", "memory.buffer", "memory.cache", "memory.inactive", "memory.active", "swap.in_per_second", "swap.out_per_second", "blocks.received_per_second", "blocks.sent_per_second", "system.interrupts_per_second", "system.context_switches_per_second", "cpu.user_time", "cpu.system_time", "cpu.idle", "cpu.wait", "cpu.stolen"]
+        # Include Not So Nice Names
+        Include ["r", "b", "swpd", "free", "buff", "cache", "inact", "active", "si", "so", "bi", "bo", "in", "cs", "us", "sy", "id", "wa", "st"]
     </Module>
 </Plugin>
 ```
