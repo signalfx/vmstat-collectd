@@ -1,11 +1,14 @@
-collectd-iostat-python
-======================
+collectd-vmstat
+===============
 
-`collectd-iostat-python` is an `iostat` plugin for Collectd that allows you to
-graph Linux `iostat` metrics in Graphite or other output formats that are
-supported by Collectd.
+`collectd-vmstat` is a `vmstat` plugin for Collectd that allows you to
+collect `vmstat` metrics.
 
-This plugin (and mostly this `README`) is rewrite of the
+This plugin is based on the SignalFx maintained fork of the
+[signalfx/collectd-iostat-python](https://github.com/signalfx/collectd-iostat-python)
+which was forked from the original project by [Denis Zhdanov](mailto:denis.zhdanov@gmail.com)
+[deniszh/collectd-iostat-python](https://github.com/deniszh/collectd-iostat-python).
+That plugin (and parts of this `README`) are a rewrite of the
 [collectd-iostat](https://github.com/keirans/collectd-iostat) from Ruby to Python
 using the
 [collectd-python](http://collectd.org/documentation/manpages/collectd-python.5.shtml)
@@ -15,33 +18,20 @@ plugin.
 Why?
 ----
 
-Disk performance is quite crucial for most of modern server
-applications, especially databases (e.g. MySQL - check out [this
-slides](http://www.percona.com/live/mysql-conference-2013/sessions/monitoring-io-performance-using-iostat-and-pt-diskstats)
-from Percona Live conference).
-
-Although Collectd [provides disk statistics out of the
-box](https://collectd.org/wiki/index.php/Plugin:Disk), graphing the metrics as
-shown by `iostat` was found to be more useful and graphic, because `iostat`
-reports usage of block devices, partitions, multipath devices and LVM volumes.
-
-Also this plugin was rewritten in Python, because it's a preferable language for
-siteops' tools on my current job, and choice of using
-[collectd-python](http://collectd.org/documentation/manpages/collectd-python.5.shtml)
-instead of
-[collectd-exec](https://collectd.org/documentation/manpages/collectd-exec.5.shtml)
-was made for performance and stability reasons.
+Collectd standard [vmem plugin](https://collectd.org/wiki/index.php/Plugin:vmem)
+looks at `/proc/vmstat` but does not report some of the information found in
+the `vmstat` tool.  For example `vmstat` reports `r` (the number of processes waiting for run time)
+and `b` (the number of processes in uninterruptible sleep).
 
 
 How?
 ----
 
-`collectd-iostat-python` functions by calling `iostat` with some predefined
+`collectd-vmstat` functions by calling `vmstat` with some predefined
 intervals and push that data to Collectd using Collectd `python` plugin.
 
-Collectd can be then configured to write the Collected data into many output
-formats that are supported by it's write plugins, such as `graphite`, which was
-the primary use case for this plugin.
+Collectd can be then configured to write the collected data into many output
+formats that are supported by it's write plugins.
 
 
 Setup
@@ -60,16 +50,16 @@ stanza similar to the following:
 </LoadPlugin>
 
 <Plugin python>
-    ModulePath "/usr/lib/collectd/plugins/python"
-    Import "collectd_iostat_python"
+    ModulePath "/usr/share/collectd/collectd-vmstat"
+    Import "collectd_vmstat"
 
-    <Module collectd_iostat_python>
-        Path "/usr/bin/iostat"
+    <Module collectd_vmstat>
+        Path "/usr/bin/vmstat"
         Interval 2
         Count 2
         Verbose false
-        NiceNames false
-        PluginName collectd_iostat_python
+        NiceNames true
+        Include [""]
     </Module>
 </Plugin>
 ```
@@ -83,10 +73,10 @@ If you would like to use more legible metric names (e.g.
 # The default Collectd types database
 TypesDB "/usr/share/collectd/types.db"
 # The custom types database
-TypesDB "/usr/share/collectd/iostat_types.db"
+TypesDB "/usr/share/collectd/collectd-vmstat/vmstat_types.db"
 ```
 
-Once functioning, the `iostat` data should then be visible via your various
+Once functioning, the `vmstat` data should then be visible via your various
 output plugins. Please note, that you need to restart collectd service after
 plugin installation, as usual.
 
@@ -95,17 +85,17 @@ In the case of Graphite, Collectd should be writing data in the
 Symbols like `/`, `-` and `%` in metric names (but not in device names) are
 automatically replaced by underscores (i.e. `_`).
 
-Please note that this plugin will take only last line of `iostat` output, so big
+Please note that this plugin will take only last line of `vmstat` output, so big
 `Count` numbers also have no sense, but `Count` needs to be more than `1` to get
 actual and not historical data. And please make `Interval * Count <<
 Collectd.INTERVAL` (4 seconds by default). The deafult value of `Count=2` and
-`Interval=2` works quite well for me.
+`Interval=2` works quite well.
 
 
 Technical notes
 ---------------
 
-For parsing `iostat` output, I'm using
+For parsing `vmstat` output, I'm using [deniszh/collectd-iostat-python]
 [jakamkon's](https://bitbucket.org/jakamkon)
 [python-iostat](https://bitbucket.org/jakamkon/python-iostat) Python module, but
 as an internal part of the script instead of a separate module because of couple
@@ -129,14 +119,12 @@ breaks the `exec` plugin, unfortunately.
 TODO
 ----
 
-* Maybe some data aggregation needed (e.g. we can use some max / avg aggregation
-of data across intervals instead of picking last line of `iostat` output).
-* The `Disks` parameter could support regexp.
-
 
 Additional reading
 ------------------
 
+* [signalfx/collectd-iostat-python](https://github.com/signalfx/collectd-iostat-python)
+* [deniszh/collectd-iostat-python](https://github.com/deniszh/collectd-iostat-python)
 * [man iostat(1)](http://linux.die.net/man/1/iostat)
 * [Custom Collectd Plug-ins for Linux](http://support.rightscale.com/12-Guides/RightScale_101/08-Management_Tools/Monitoring_System/Writing_custom_collectd_plugins/Custom_Collectd_Plug-ins_for_Linux)
 * [python-iostat](https://bitbucket.org/jakamkon/python-iostat)
@@ -152,11 +140,5 @@ License
 Support
 -------
 
-Fork maintained by SignalFx
+Maintained by SignalFx
 [support@signalfx.com](mailto:support@signalfx.com)
-
-
-Original Author
----------------
-[Denis Zhdanov](mailto:denis.zhdanov@gmail.com)
-([@deniszh](http://twitter.com/deniszh))

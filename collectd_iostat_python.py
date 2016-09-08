@@ -35,7 +35,7 @@ import sys
 
 __version__ = '0.0.0'
 
-__author__ = 'denis.zhdanov@gmail.com'
+__author__ = 'SignalFx'
 
 # Fork maintained by SignalFx
 __maintainer__ = 'SignalFx'
