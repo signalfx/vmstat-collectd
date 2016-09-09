@@ -33,7 +33,7 @@ import subprocess
 import sys
 
 
-__version__ = '0.0.0'
+__version__ = '0.0.1'
 
 __author__ = 'SignalFx'
 
@@ -70,12 +70,6 @@ class VMStat(object):
 
         @return: C{dictionary} contains per block device statistics.
         Statistics are in form of C{dictonary}.
-        Main statistics:
-          tps  Blk_read/s  Blk_wrtn/s  Blk_read  Blk_wrtn
-        Extended staistics (available with post 2.5 kernels):
-          rrqm/s  wrqm/s  r/s  w/s  rsec/s  wsec/s  rkB/s  wkB/s  avgrq-sz \
-          avgqu-sz  await  svctm  %util
-        See I{man vmstat} for more details.
         """
         vmstats = {}
         # Find the line with the column headers
@@ -152,32 +146,32 @@ class VMMon(object):
     def __init__(self):
         self.plugin_name = 'vmstat'
         self.vmstat_path = '/usr/bin/vmstat'
-        self.interval = 60.0
+        self.interval = 10.0
         self.vmstat_interval = 1
-        self.vmstat_count = 1
+        self.vmstat_count = 2
         self.vmstat_nice_names = False
         self.verbose_logging = False
         self.include = set([])
         self.names = {
-            'r': {'t': 'process', 'ti': 'waiting'},
-            'b': {'t': 'process', 'ti': 'uninterruptible_sleep'},
-            'swpd': {'t': 'memory', 'ti': 'swap'},
-            'free': {'t': 'memory', 'ti': 'free'},
-            'buff': {'t': 'memory', 'ti': 'buffer'},
-            'cache': {'t': 'memory', 'ti': 'cache'},
-            'inact': {'t': 'memory', 'ti': 'inactive'},
-            'active': {'t': 'memory', 'ti': 'active'},
-            'si': {'t': 'swap', 'ti': 'in_per_second'},
-            'so': {'t': 'swap', 'ti': 'out_per_second'},
-            'bi': {'t': 'blocks', 'ti': 'received_per_second'},
-            'bo': {'t': 'blocks', 'ti': 'sent_per_second'},
-            'in': {'t': 'system', 'ti': 'interrupts_per_second'},
-            'cs': {'t': 'system', 'ti': 'context_switches_per_second'},
-            'us': {'t': 'cpu', 'ti': 'user_time'},
-            'sy': {'t': 'cpu', 'ti': 'system_time'},
-            'id': {'t': 'cpu', 'ti': 'idle'},
-            'wa': {'t': 'cpu', 'ti': 'wait'},
-            'st': {'t': 'cpu', 'ti': 'stolen'}
+            'r': {'t': 'vmstat_process', 'ti': 'waiting'},
+            'b': {'t': 'vmstat_process', 'ti': 'uninterruptible_sleep'},
+            'swpd': {'t': 'vmstat_memory', 'ti': 'swap'},
+            'free': {'t': 'vmstat_memory', 'ti': 'free'},
+            'buff': {'t': 'vmstat_memory', 'ti': 'buffer'},
+            'cache': {'t': 'vmstat_memory', 'ti': 'cache'},
+            'inact': {'t': 'vmstat_memory', 'ti': 'inactive'},
+            'active': {'t': 'vmstat_memory', 'ti': 'active'},
+            'si': {'t': 'vmstat_swap', 'ti': 'in_per_second'},
+            'so': {'t': 'vmstat_swap', 'ti': 'out_per_second'},
+            'bi': {'t': 'vmstat_blocks', 'ti': 'received_per_second'},
+            'bo': {'t': 'vmstat_blocks', 'ti': 'sent_per_second'},
+            'in': {'t': 'vmstat_system', 'ti': 'interrupts_per_second'},
+            'cs': {'t': 'vmstat_system', 'ti': 'context_switches_per_second'},
+            'us': {'t': 'vmstat_cpu', 'ti': 'user'},
+            'sy': {'t': 'vmstat_cpu', 'ti': 'system'},
+            'id': {'t': 'vmstat_cpu', 'ti': 'idle'},
+            'wa': {'t': 'vmstat_cpu', 'ti': 'wait'},
+            'st': {'t': 'vmstat_cpu', 'ti': 'stolen'}
         }
 
     def log_verbose(self, msg):
@@ -196,11 +190,10 @@ class VMMon(object):
                 self.vmstat_path = val
             elif node.key == 'Interval':
                 self.interval = float(val)
-            # This is not intended to be configurable
-            # elif node.key == 'VMStatInterval':
-            #     self.vmstat_interval = int(float(val))
-            # elif node.key == 'Count':
-            #     self.vmstat_count = int(float(val))
+            elif node.key == 'VMStatInterval':
+                self.vmstat_interval = int(float(val))
+            elif node.key == 'Count':
+                self.vmstat_count = int(float(val))
             elif node.key == 'NiceNames':
                 self.vmstat_nice_names = val in ['True', 'true']
             elif node.key == 'PluginName':
@@ -208,9 +201,7 @@ class VMMon(object):
             elif node.key == 'Verbose':
                 self.verbose_logging = val in ['True', 'true']
             elif node.key == 'Include':
-                tbl = string.maketrans('/-%', '___')
-                for i in node.values:
-                    self.include.add(i.translate(tbl))
+                self.include.update(node.values)
             else:
                 collectd.warning(
                     '%s plugin: Unknown config key: %s.' % (
@@ -279,8 +270,7 @@ class VMMon(object):
                     value *= self.names[name]['m']
             else:
                 val_type = 'gauge'
-                tbl = string.maketrans('/-%', '___')
-                type_instance = name.translate(tbl)
+                type_instance = name
                 value = ds[name]
 
             if len(self.include) == 0 \
@@ -307,9 +297,7 @@ if __name__ == '__main__':
     ds = vmstat.get_vmstats()
 
     for metric in ds:
-        tbl = string.maketrans('/-%', '___')
-        metric_name = metric.translate(tbl)
-        print("%s:%s" % (metric_name, ds[metric]))
+        print("%s:%s" % (metric, ds[metric]))
 
     sys.exit(0)
 else:

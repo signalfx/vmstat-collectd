@@ -1,6 +1,0 @@
-process                     value:GAUGE:0:U
-memory                      value:GAUGE:0:U
-swap                        value:GAUGE:0:U
-blocks                      value:GAUGE:0:U
-system                      value:GAUGE:0:U
-cpu                         value:GAUGE:0:U
