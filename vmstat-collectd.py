@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # coding=utf-8
 #
-# collectd-vmstat
+# vmstat-collectd
 # ===============
-# Collectd-vmstat is a python based plugin for collectd that reports metrics
+# vmstat-collectd is a python based plugin for collectd that reports metrics
 # collected from the unix command vmstat
-# https://github.com/signalfx/collectd-vmstat
+# https://github.com/signalfx/vmstat-collectd
 #
 # This project is based on the SignalFx maintained fork of 
 # collectd-iostat-python project.
@@ -84,7 +84,7 @@ class VMStat(object):
         hdr = ds.pop(0).split()
 
         # For data point in data string
-        for index, stats in enumerate(ds):
+        for stats in ds:
             # If string of data points
             if stats:
                 # split the data points
