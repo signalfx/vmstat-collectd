@@ -129,8 +129,8 @@ class VMStat(object):
         """
         Get all avaliable vmstats that we can get.
         """
-        dstats = self._run(options=['-nS K'])
-        extdstats = self._run(options=['-anS K'])
+        dstats = self._run(options=['-n -S K'])
+        extdstats = self._run(options=['-an -S K'])
         dsd = self._get_childs_data(dstats)
         edd = self._get_childs_data(extdstats)
         ds = self.parse_vmstats(dsd)
