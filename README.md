@@ -12,7 +12,7 @@ which was forked from the original project by [Denis Zhdanov](mailto:denis.zhdan
 
 Documentation
 -------------
-Please refer to the [documentation](https://github.com/signalfx/integrations/tree/master/vmstat-collectd) found in [signalfx/integrations](https://github.com/signalfx/integrations) for more information on this plugin.
+Please refer to the [documentation](https://github.com/signalfx/integrations/tree/master/collectd-vmstat) found in [signalfx/integrations](https://github.com/signalfx/integrations) for more information on this plugin.
 
 
 License
