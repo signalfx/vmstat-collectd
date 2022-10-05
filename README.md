@@ -24,8 +24,8 @@ License
 Support
 -------
 
-Maintained by SignalFx
-[support@signalfx.com](mailto:support@signalfx.com)
+Maintained by Splunk
+[signalfx-support@splunk.com](mailto:signalfx-support@splunk.com)
 
 
 Sources

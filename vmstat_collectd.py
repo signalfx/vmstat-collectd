@@ -25,7 +25,7 @@
 # https://bitbucket.org/jakamkon/python-iostat
 #   - by Kuba Kończyk <jakamkon at users.sourceforge.net>
 #
-# This fork is maintained by SignalFx <support@signalfx.com>
+# This fork is maintained by Splunk <signalfx-support@splunk.com>
 
 import signal
 import string
@@ -38,8 +38,8 @@ __version__ = '0.0.1'
 __author__ = 'SignalFx'
 
 # Fork maintained by SignalFx
-__maintainer__ = 'SignalFx'
-__email__ = 'support@signalfx.com'
+__maintainer__ = 'Splunk'
+__email__ = 'signalfx-support@splunk.com'
 
 
 class VMStatError(Exception):
