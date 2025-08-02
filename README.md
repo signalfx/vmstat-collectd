@@ -1,3 +1,7 @@
+> # :warning: End of Support (EoS) Notice
+> 
+> This plugin is deprecated and no longer maintained.
+
 vmstat-collectd
 ===============
 
@@ -19,13 +23,6 @@ License
 -------
 
 [MIT](http://mit-license.org/)
-
-
-Support
--------
-
-Maintained by Splunk
-[signalfx-support@splunk.com](mailto:signalfx-support@splunk.com)
 
 
 Sources
